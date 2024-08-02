@@ -5,10 +5,10 @@ using System.IO;
 
 class Program
 {
+    static List<Car> cars = new List<Car>();
+
     static void Main(string[] args)
     {
-        List<Car> cars = new List<Car>();
-
         // Read existing car details
         using (StreamReader sr = new StreamReader("Car_Details.csv"))
         {
@@ -46,7 +46,7 @@ class Program
         }
         else if (option == 3)
         {
-            registerCar(cars); // sequence 1 in the sequence diagram
+            registerCar(); // sequence 1 in the sequence diagram
         }
         else if (option == 4)
         {
@@ -78,67 +78,78 @@ class Program
         // --------------------- MAIN MENU ---------------------
 
         // ------------------------ Register Car Flow ------------------------
-        static void registerCar(List<Car> cars) // sequence 1
+        static void registerCar() // sequence 1
         {
             bool success = false;
             while (!success)
             {
-                success = showCarDetailsPrompt(cars);
+                success = showCarDetailsPrompt();
             }
         }
 
         // ------------------------ Show Car Details Prompt ------------------------
-        static bool showCarDetailsPrompt(List<Car> cars) // sequence 1.1
+        static bool showCarDetailsPrompt() // sequence 1.1
         {
-            Car newCar = InputCarDetails();
-            return submitCarDetails(cars, newCar);
+            string make, model, color, licensePlate, vin, photo, insuranceDetails;
+            int year, mileage;
+            inputCarDetails(out make, out model, out year, out mileage, out color, out licensePlate, out vin, out photo, out insuranceDetails);
+            Car newCar = new Car
+            {
+                Make = make,
+                Model = model,
+                Year = year,
+                Mileage = mileage,
+                Color = color,
+                LicensePlate = licensePlate,
+                VIN = vin,
+                Photo = photo,
+                InsuranceDetails = insuranceDetails
+            };
+            return submitCarDetails(newCar);
         }
 
         // --------------------- Input Car Details ---------------------
-        static Car InputCarDetails() // sequence 2
+        static void inputCarDetails(out string make, out string model, out int year, out int mileage, out string color, out string licensePlate, out string vin, out string photo, out string insuranceDetails) // sequence 2
         {
-            Car car = new Car();
             Console.WriteLine("\nEnter Car Details\n-----------------");
 
             Console.Write("Make: ");
-            car.Make = Console.ReadLine();
+            make = Console.ReadLine();
 
             Console.Write("Model: ");
-            car.Model = Console.ReadLine();
+            model = Console.ReadLine();
 
             Console.Write("Year: ");
-            car.Year = Convert.ToInt32(Console.ReadLine());
+            year = Convert.ToInt32(Console.ReadLine());
 
             Console.Write("Mileage: ");
-            car.Mileage = Convert.ToInt32(Console.ReadLine());
+            mileage = Convert.ToInt32(Console.ReadLine());
 
             Console.Write("Color: ");
-            car.Color = Console.ReadLine();
+            color = Console.ReadLine();
 
             Console.Write("License Plate: ");
-            car.LicensePlate = Console.ReadLine();
+            licensePlate = Console.ReadLine();
 
             Console.Write("VIN: ");
-            car.VIN = Console.ReadLine();
+            vin = Console.ReadLine();
 
             Console.Write("Photo: ");
-            car.Photo = Console.ReadLine();
+            photo = Console.ReadLine();
 
             Console.Write("Insurance Details: ");
-            car.InsuranceDetails = Console.ReadLine();
-
-            return car;
+            insuranceDetails = Console.ReadLine();
         }
         // --------------------- Input Car Details ---------------------
 
         // --------------------- Submit Car Details ---------------------
-        static bool submitCarDetails(List<Car> cars, Car car) // sequence 2.1
+        static bool submitCarDetails(Car car) // sequence 2.1
         {
-            bool validateResult = validateResults(cars, car);
+            bool validateResult = validateDetails(car.LicensePlate); // sequence 2.1.1
 
             if (validateResult)
             {
-                addNewVehicle(cars, car); // sequence 2.2
+                addNewVehicle(car); // sequence 2.2
                 showValidateResults("success"); // sequence 2.3
                 return true;
             }
@@ -151,7 +162,7 @@ class Program
         // --------------------- Submit Car Details ---------------------
 
         // --------------------- Add New Vehicle ---------------------
-        static void addNewVehicle(List<Car> cars, Car car) // sequence 2.2
+        static void addNewVehicle(Car car) // sequence 2.2
         {
             cars.Add(car);
             writeCarDetailsToFile(car);
@@ -159,13 +170,13 @@ class Program
         }
         // --------------------- Add New Vehicle ---------------------
 
-        // --------------------- Validate Results ---------------------
-        static bool validateResults(List<Car> cars, Car car) // sequence 2.1.1 and 2.1.2
+        // --------------------- Validate Details ---------------------
+        static bool validateDetails(string licensePlate) // sequence 2.1.1 and 2.1.2
         {
             // Check for duplicate license plates
             foreach (var existingCar in cars)
             {
-                if (existingCar.LicensePlate == car.LicensePlate)
+                if (existingCar.LicensePlate == licensePlate)
                 {
                     return false;
                 }
@@ -173,7 +184,7 @@ class Program
 
             return true;
         }
-        // --------------------- Validate Results ---------------------
+        // --------------------- Validate Details ---------------------
 
         // --------------------- Show Validate Results ---------------------
         static void showValidateResults(string result) // sequence 2.3
