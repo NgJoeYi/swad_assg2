@@ -14,9 +14,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Rental_Details.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Car_Details.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\raean\Source\Repos\NgJoeYi\swad_assg2\swad_assg2\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\raean\Source\Repos\NgJoeYi\swad_assg2\swad_assg2\.editorconfig" />
   </ItemGroup>
 
 </Project>
