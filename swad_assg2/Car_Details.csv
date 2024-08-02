@@ -1,0 +1,11 @@
+Make,Model,Year,Mileage,Color,License Plate,VIN,Photo,Insurance Details
+Toyota,Corolla,2020,15000,Blue,XYZ1234,1HGCM82633A123456,car.jpg,Full Coverage
+Honda,Accord,2018,30000,Black,ABC4321,3HGCM82633A987654,car3.jpg,Full Coverage
+Ford,Focus,2019,25000,Red,DEF5678,2FTRX18W1XCA12345,car4.jpg,Full Coverage
+Chevrolet,Malibu,2020,20000,White,GHI9012,1G1ZD5ST8LF123456,car5.jpg,Full Coverage
+Nissan,Altima,2017,35000,Silver,JKL3456,1N4AL3AP5HC123456,car6.jpg,Full Coverage
+Hyundai,Elantra,2019,10000,Gray,MNO7890,KMHD84LF5HU123456,car7.jpg,Full Coverage
+Kia,Soul,2020,5000,Green,PQR1234,KNDJP3A50L7001234,car8.jpg,Full Coverage
+Mazda,3,2018,22000,Blue,STU5678,JM1BPANM5K1101234,car9.jpg,Full Coverage
+BMW,X5,2021,8000,Black,VWX9012,5UXCR6C55K0Z12345,car10.jpg,Full Coverage
+Mercedes-Benz,C-Class,2020,12000,White,YZA3456,WDDGF8ABXGF123456,car11.jpg,Full Coverage
