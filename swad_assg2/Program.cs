@@ -47,6 +47,17 @@ class Program
         else if (option == 3)
         {
             registerCar(cars); // sequence 1 in the sequence diagram
+            /*
+            1.                          registerCar()
+            1.1                         showCarDetailsPrompt()
+            2.                          inputCarDetails(...)
+            2.1                         submitCarDetails(...)
+            2.1.1                       validateResult = validateDetails()
+            2.1.2                       validateResult
+            2.2/2.2.1/2.2.1.1           addNewVehicle(...)
+            2.3                         showValidateResult(...)
+            2.4                         showErrorMessage(...)
+            */
         }
         else if (option == 4)
         {
