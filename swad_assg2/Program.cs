@@ -47,17 +47,6 @@ class Program
         else if (option == 3)
         {
             registerCar(cars); // sequence 1 in the sequence diagram
-            /*
-            1.                          registerCar()
-            1.1                         showCarDetailsPrompt()
-            2.                          inputCarDetails(...)
-            2.1                         submitCarDetails(...)
-            2.1.1                       validateResult = validateDetails()
-            2.1.2                       validateResult
-            2.2/2.2.1/2.2.1.1           addNewVehicle(...)
-            2.3                         showValidateResult(...)
-            2.4                         showErrorMessage(...)
-            */
         }
         else if (option == 4)
         {
@@ -91,21 +80,25 @@ class Program
         // ------------------------ Register Car Flow ------------------------
         static void registerCar(List<Car> cars) // sequence 1
         {
-            showCarDetailsPrompt(cars);
+            bool success = false;
+            while (!success)
+            {
+                success = showCarDetailsPrompt(cars);
+            }
         }
 
         // ------------------------ Show Car Details Prompt ------------------------
-        static void showCarDetailsPrompt(List<Car> cars) // sequence 1.1
+        static bool showCarDetailsPrompt(List<Car> cars) // sequence 1.1
         {
             Car newCar = InputCarDetails();
-            submitCarDetails(cars, newCar);
+            return submitCarDetails(cars, newCar);
         }
 
         // --------------------- Input Car Details ---------------------
         static Car InputCarDetails() // sequence 2
         {
             Car car = new Car();
-            Console.WriteLine("Enter Car Details:");
+            Console.WriteLine("\nEnter Car Details\n-----------------");
 
             Console.Write("Make: ");
             car.Make = Console.ReadLine();
@@ -139,7 +132,7 @@ class Program
         // --------------------- Input Car Details ---------------------
 
         // --------------------- Submit Car Details ---------------------
-        static void submitCarDetails(List<Car> cars, Car car) // sequence 2.1
+        static bool submitCarDetails(List<Car> cars, Car car) // sequence 2.1
         {
             bool validateResult = validateResults(cars, car);
 
@@ -147,10 +140,12 @@ class Program
             {
                 addNewVehicle(cars, car); // sequence 2.2
                 showValidateResults("success"); // sequence 2.3
+                return true;
             }
             else
             {
-                showErrorMessage("Error: Duplicate car license plate found."); // sequence 2.4
+                showErrorMessage("\n***Error: Duplicate car license plate found.***\n"); // sequence 2.4
+                return false;
             }
         }
         // --------------------- Submit Car Details ---------------------
