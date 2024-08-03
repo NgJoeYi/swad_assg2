@@ -23,17 +23,16 @@ class Program
             while ((s = sr.ReadLine()) != null)
             {
                 string[] items = s.Split(',');
-                Car car = new Car
-                {
-                    Make = items[0],
-                    Model = items[1],
-                    Year = Convert.ToInt32(items[2]),
-                    Mileage = Convert.ToInt32(items[3]),
-                    Color = items[4],
-                    LicensePlate = items[5],
-                    VIN = items[6],
-                    Photo = items[7]
-                };
+                Car car = new Car(
+                    items[0], // make
+                    items[1], // model
+                    Convert.ToInt32(items[2]), // year
+                    Convert.ToInt32(items[3]), // mileage
+                    items[4], // color
+                    items[5], // license plate
+                    items[6], // VIN
+                    items[7]  // photo
+                );
                 cars.Add(car);
             }
         }
@@ -431,7 +430,7 @@ class Program
 
 
 
-    //joeyi
+    //joeyi's
 
     // ------------------------ Register Car Flow ------------------------
     static void RegisterCar() // sequence 1
@@ -450,17 +449,8 @@ class Program
         string make, model, color, licensePlate, vin, photo;
         int year, mileage;
         InputCarDetails(out make, out model, out year, out mileage, out color, out licensePlate, out vin, out photo);
-        Car newCar = new Car
-        {
-            Make = make,
-            Model = model,
-            Year = year,
-            Mileage = mileage,
-            Color = color,
-            LicensePlate = licensePlate,
-            VIN = vin,
-            Photo = photo
-        };
+        Car newCar = new Car(make, model, year, mileage, color, licensePlate, vin, photo);
+
         return SubmitCarDetails(newCar);
     }
 
@@ -501,13 +491,13 @@ class Program
 
         if (validateResult)
         {
-            AddNewVehicle(car); // sequence 2.2
-            ShowValidateResults("success", car.LicensePlate, car.VIN); // sequence 2.3
+            AddNewVehicle(car); // sequence 2.1.3
+            ShowValidateResults("success", car.LicensePlate, car.VIN); // sequence 2.1.4
             return true;
         }
         else
         {
-            ShowErrorMessage("\n***Error: Duplicate car license plate or VIN found.***"); // sequence 2.4
+            ShowErrorMessage("\n***Error: Duplicate car license plate or VIN found.***"); // sequence 2.1.5
             return false;
         }
     }
@@ -527,18 +517,18 @@ class Program
     }
 
     // --------------------- Add New Vehicle ---------------------
-    static void AddNewVehicle(Car car) // sequence 2.2
+    static void AddNewVehicle(Car car) // sequence 2.1.3
     {
         cars.Add(car);
         WriteCarDetailsToFile(car);
     }
     // --------------------- Show Validate Results ---------------------
-    static void ShowValidateResults(string result, string licensePlate, string vin) // sequence 2.3
+    static void ShowValidateResults(string result, string licensePlate, string vin) // sequence 2.1.4
     {
         Console.WriteLine($"Validation result: {result} for License Plate: {licensePlate} and VIN: {vin}");
     }
     // --------------------- Show Error Message ---------------------
-    static void ShowErrorMessage(string message) // sequence 2.4
+    static void ShowErrorMessage(string message) // sequence 2.1.5
     {
         Console.WriteLine(message);
     }
@@ -550,4 +540,6 @@ class Program
             sw.WriteLine($"{car.Make},{car.Model},{car.Year},{car.Mileage},{car.Color},{car.LicensePlate},{car.VIN},{car.Photo}");
         }
     }
+
+    // end of joeyi's
 }
