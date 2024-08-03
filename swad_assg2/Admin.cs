@@ -8,5 +8,6 @@ namespace swad_assg2
 {
     internal class Admin
     {
+        // tryout
     }
 }
