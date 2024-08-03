@@ -6,21 +6,15 @@ using System.Threading.Tasks;
 
 namespace swad_assg2
 {
-    class Renter
+    class Renter : User
     {
-        public string FullName { get; set; }
-        public string ContactDetails { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public string DriversLicense { get; set; }
-        public string InsuranceDetails { get; set; }
-
-        public Renter(string fullName, string contactDetails, DateTime dateOfBirth, string driversLicense, string insuranceDetails)
-        {
-            FullName = fullName;
-            ContactDetails = contactDetails;
-            DateOfBirth = dateOfBirth;
-            DriversLicense = driversLicense;
-            InsuranceDetails = insuranceDetails;
-        }
+        public string RenterId { get; set; }
+        public string BookingHistory { get; set; }
+        public string PaymentDetails { get; set; }
+        public string VerificationStatus { get; set; }
+        public bool IsPrime { get; set; }
+        public string UpcomingRentals { get; set; }
+        public bool IsPenalised { get; set; }
     }
+
 }

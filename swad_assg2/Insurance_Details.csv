@@ -1,0 +1,3 @@
+InsuranceId,ProviderName,PolicyNumber,CoverageDetails,ValidityPeriod
+1,Default Insurance Provider,ICAR1234,Basic Coverage,2024-08-04
+2,Default Insurance Provider,ICAR5678,Full Coverage,2024-08-04
