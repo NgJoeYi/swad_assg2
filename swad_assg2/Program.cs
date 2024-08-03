@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 class Program
 {
     static List<Car> cars = new List<Car>();
     static List<ListVehicle> listedVehicles = new List<ListVehicle>();
     static List<ListRental> rentalDetailsList = new List<ListRental>();
+    static List<Renter> renters = new List<Renter>();
 
     static void Main(string[] args)
     {
@@ -37,6 +39,33 @@ class Program
             }
         }
 
+        // Read existing renters details
+        using (StreamReader sr = new StreamReader("Renters.csv"))
+        {
+            // read header first
+            string s = sr.ReadLine();
+            string[] header = s.Split(',');
+            // read the rest 
+            while ((s = sr.ReadLine()) != null)
+            {
+                string[] items = s.Split(',');
+                if (items.Length >= 5)
+                {
+                    Renter renter = new Renter(
+                        items[0],
+                        items[1],
+                        DateTime.Parse(items[2]),
+                        items[3],
+                        items[4]);
+                    renters.Add(renter);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid data format in Renters.csv.");
+                }
+            }
+        }
+
         // Main menu loop
         bool running = true;
         while (running)
@@ -54,13 +83,16 @@ class Program
                     registerCar(); // sequence 1 in the sequence diagram for registering a car
                     break;
                 case 4:
-                    Console.WriteLine("Register Account selected.");
+                    registerAccount();
                     break;
                 case 5:
                     Console.WriteLine("Reserve Car selected.");
                     break;
                 case 6:
                     viewListedVehicles();
+                    break;
+                case 7:
+                    viewRenters();
                     break;
                 case 0:
                     running = false;
@@ -83,6 +115,7 @@ class Program
               "[4] Register Account\n" +
               "[5] Reserve Car\n" +
               "[6] View Listed Vehicles\n" +
+              "[7] View Renters\n" +
               "[0] Exit\n" +
               "---------------------------");
         Console.Write("Select an option: ");
@@ -90,6 +123,131 @@ class Program
         return option;
     }
     // --------------------- MAIN MENU ---------------------
+
+    // ------------------------ Register Account Flow ------------------------
+    static void registerAccount()
+    {
+        string fullName, contactDetails, driversLicense;
+        DateTime dateOfBirth;
+        inputRenterDetails(out fullName, out contactDetails, out dateOfBirth, out driversLicense);
+
+        Renter renter = new Renter(fullName, contactDetails, dateOfBirth, driversLicense, null);
+        RenterService renterService = new RenterService();
+        if (renterService.RegisterRenter(renter))
+        {
+            // Update insurance details after registration
+            renter.InsuranceDetails = "Full Coverage";
+            // Add to the list and save to file
+            renters.Add(renter);
+            writeRenterDetailsToFile(renter);
+        }
+        else
+        {
+            Console.WriteLine("Authenticity Check Failed.");
+            Console.WriteLine("Registration Process is Terminated");
+        }
+    }
+
+    // --------------------- Input Renter Details ---------------------
+    static void inputRenterDetails(out string fullName, out string contactDetails, out DateTime dateOfBirth, out string driversLicense)
+    {
+        Console.WriteLine("\nEnter Renter Details\n-----------------");
+
+
+        while (true)
+        {
+            Console.Write("Full Name: ");
+            fullName = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(fullName) || !Regex.IsMatch(fullName, @"^[a-zA-Z\s]+$"))
+            {
+                Console.WriteLine("Required Information Missing or Invalid. Please try again.");
+                continue;
+            }
+            break;
+        }
+
+        while (true)
+        {
+            Console.Write("Contact Details: ");
+            contactDetails = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(contactDetails))
+            {
+                Console.WriteLine("Required Information Missing or Invalid. Please try again.");
+                continue;
+            }
+            break;
+        }
+
+        while (true)
+        {
+            Console.Write("Date of Birth (yyyy-MM-dd): ");
+            if (DateTime.TryParse(Console.ReadLine(), out dateOfBirth))
+            {
+                if (CalculateAge(dateOfBirth) <= 17)
+                {
+                    Console.WriteLine("Registration failed: You must be at least 18 years old to register.");
+                    driversLicense = string.Empty; // Assign a default value before returning
+                    return;
+                }
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Required Information Missing or Invalid. Please try again.");
+            }
+        }
+
+        while (true)
+        {
+            Console.Write("Driver's License: ");
+            driversLicense = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(driversLicense))
+            {
+                Console.WriteLine("Required Information Missing or Invalid. Please try again.");
+                continue;
+            }
+            break;
+        }
+    }
+
+    // Calculate age from DateTime
+    static int CalculateAge(DateTime birthDate)
+    {
+        int age = DateTime.Now.Year - birthDate.Year;
+        if (DateTime.Now.DayOfYear < birthDate.DayOfYear)
+            age--;
+        return age;
+    }
+
+    // --------------------- Write Renter Details To File ---------------------
+    static void writeRenterDetailsToFile(Renter renter)
+    {
+        using (StreamWriter sw = new StreamWriter("Renters.csv", true))
+        {
+            sw.WriteLine($"{renter.FullName},{renter.ContactDetails},{renter.DateOfBirth:yyyy-MM-dd},{renter.DriversLicense},{renter.InsuranceDetails}");
+        }
+    }
+
+    // --------------------- View Renters ---------------------
+    static void viewRenters()
+    {
+        Console.WriteLine("\nRegistered Renters:\n-----------------");
+
+        foreach (var renter in renters)
+        {
+            Console.WriteLine($"Full Name: {renter.FullName}");
+            Console.WriteLine($"Contact Details: {renter.ContactDetails}");
+            Console.WriteLine($"Date of Birth: {renter.DateOfBirth:yyyy-MM-dd}");
+            Console.WriteLine($"Driver's License: {renter.DriversLicense}");
+            Console.WriteLine($"Insurance Details: {renter.InsuranceDetails}");
+            Console.WriteLine("-----------------");
+        }
+
+        if (renters.Count == 0)
+        {
+            Console.WriteLine("No renters registered.");
+        }
+    }
 
     // ------------------------ Register Car Flow ------------------------
     static void registerCar() // sequence 1
