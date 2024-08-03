@@ -23,18 +23,16 @@ class Program
             while ((s = sr.ReadLine()) != null)
             {
                 string[] items = s.Split(',');
-                Car car = new Car
-                {
-                    Make = items[0],
-                    Model = items[1],
-                    Year = Convert.ToInt32(items[2]),
-                    Mileage = Convert.ToInt32(items[3]),
-                    Color = items[4],
-                    LicensePlate = items[5],
-                    VIN = items[6],
-                    Photo = items[7],
-                    InsuranceDetails = items[8]
-                };
+                Car car = new Car(
+                    items[0], // make
+                    items[1], // model
+                    Convert.ToInt32(items[2]), // year
+                    Convert.ToInt32(items[3]), // mileage
+                    items[4], // color
+                    items[5], // license plate
+                    items[6], // VIN
+                    items[7]  // photo
+                );
                 cars.Add(car);
             }
         }
@@ -59,7 +57,7 @@ class Program
                     listVehicle(); // sequence 1 in the sequence diagram for listing a vehicle
                     break;
                 case 3:
-                    registerCar(); // sequence 1 in the sequence diagram for registering a car
+                    RegisterCar(); // sequence 1 in the sequence diagram for registering a car
                     break;
                 case 4:
                     registerAccount();
@@ -163,139 +161,6 @@ class Program
         }
     }
 
-    // ------------------------ Register Car Flow ------------------------
-    static void registerCar() // sequence 1
-    {
-        bool success = false;
-        while (!success)
-        {
-            success = showCarDetailsPrompt();
-        }
-        Console.WriteLine("Car registered successfully.");
-    }
-
-    // ------------------------ Show Car Details Prompt ------------------------
-    static bool showCarDetailsPrompt() // sequence 1.1
-    {
-        string make, model, color, licensePlate, vin, photo, insuranceDetails;
-        int year, mileage;
-        inputCarDetails(out make, out model, out year, out mileage, out color, out licensePlate, out vin, out photo, out insuranceDetails);
-        Car newCar = new Car
-        {
-            Make = make,
-            Model = model,
-            Year = year,
-            Mileage = mileage,
-            Color = color,
-            LicensePlate = licensePlate,
-            VIN = vin,
-            Photo = photo,
-            InsuranceDetails = insuranceDetails
-        };
-        return submitCarDetails(newCar);
-    }
-
-    // --------------------- Input Car Details ---------------------
-    static void inputCarDetails(out string make, out string model, out int year, out int mileage, out string color, out string licensePlate, out string vin, out string photo, out string insuranceDetails) // sequence 2
-    {
-        Console.WriteLine("\nEnter Car Details\n-----------------");
-
-        Console.Write("Make: ");
-        make = Console.ReadLine();
-
-        Console.Write("Model: ");
-        model = Console.ReadLine();
-
-        Console.Write("Year: ");
-        year = Convert.ToInt32(Console.ReadLine());
-
-        Console.Write("Mileage: ");
-        mileage = Convert.ToInt32(Console.ReadLine());
-
-        Console.Write("Color: ");
-        color = Console.ReadLine();
-
-        Console.Write("License Plate: ");
-        licensePlate = Console.ReadLine();
-
-        Console.Write("VIN: ");
-        vin = Console.ReadLine();
-
-        Console.Write("Photo: ");
-        photo = Console.ReadLine();
-
-        Console.Write("Insurance Details: ");
-        insuranceDetails = Console.ReadLine();
-    }
-    // --------------------- Input Car Details ---------------------
-
-    // --------------------- Submit Car Details ---------------------
-    static bool submitCarDetails(Car car) // sequence 2.1
-    {
-        bool validateResult = validateDetails(car.LicensePlate); // sequence 2.1.1
-
-        if (validateResult)
-        {
-            addNewVehicle(car); // sequence 2.2
-            showValidateResults("success"); // sequence 2.3
-            return true;
-        }
-        else
-        {
-            showErrorMessage("\n***Error: Duplicate car license plate found.***\n"); // sequence 2.4
-            return false;
-        }
-    }
-    // --------------------- Submit Car Details ---------------------
-
-    // --------------------- Add New Vehicle ---------------------
-    static void addNewVehicle(Car car) // sequence 2.2
-    {
-        cars.Add(car);
-        writeCarDetailsToFile(car);
-    }
-    // --------------------- Add New Vehicle ---------------------
-
-    // --------------------- Validate Details ---------------------
-    static bool validateDetails(string licensePlate) // sequence 2.1.1 and 2.1.2
-    {
-        // Check for duplicate license plates
-        foreach (var existingCar in cars)
-        {
-            if (existingCar.LicensePlate == licensePlate)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-    // --------------------- Validate Details ---------------------
-
-    // --------------------- Show Validate Results ---------------------
-    static void showValidateResults(string result) // sequence 2.3
-    {
-        Console.WriteLine($"Validation result: {result}");
-    }
-    // --------------------- Show Validate Results ---------------------
-
-    // --------------------- Show Error Message ---------------------
-    static void showErrorMessage(string message) // sequence 2.4
-    {
-        Console.WriteLine(message);
-    }
-    // --------------------- Show Error Message ---------------------
-
-    // --------------------- Write Car Details To File ---------------------
-    static void writeCarDetailsToFile(Car car)
-    {
-        using (StreamWriter sw = new StreamWriter("Car_Details.csv", true))
-        {
-            sw.WriteLine($"{car.Make},{car.Model},{car.Year},{car.Mileage},{car.Color},{car.LicensePlate},{car.VIN},{car.Photo},{car.InsuranceDetails}");
-        }
-    }
-    // --------------------- Write Car Details To File ---------------------
-
     // ------------------------ List Vehicle Flow ------------------------
     static void listVehicle() // Sequence 1
     {
@@ -305,7 +170,7 @@ class Program
         // Sequence 3: Car owner enters vehicle details.
         string make, model, color, licensePlate, vin, photo, insuranceDetails;
         int year, mileage;
-        inputVehicleDetails(out make, out model, out year, out mileage, out color, out licensePlate, out vin, out photo, out insuranceDetails);
+        inputVehicleDetails(out make, out model, out year, out mileage, out color, out licensePlate, out vin, out photo);
 
         ListVehicle listedCar = new ListVehicle
         {
@@ -316,8 +181,7 @@ class Program
             Color = color,
             LicensePlate = licensePlate,
             VIN = vin,
-            Photo = photo,
-            InsuranceDetails = insuranceDetails
+            Photo = photo
         };
 
         // Sequence 4: System validates the entered vehicle details.
@@ -402,7 +266,7 @@ class Program
     }
 
     // --------------------- Input Vehicle Details ---------------------
-    static void inputVehicleDetails(out string make, out string model, out int year, out int mileage, out string color, out string licensePlate, out string vin, out string photo, out string insuranceDetails) // Sequence 3
+    static void inputVehicleDetails(out string make, out string model, out int year, out int mileage, out string color, out string licensePlate, out string vin, out string photo) // Sequence 3
     {
         Console.WriteLine("\nEnter Car Details\n-----------------");
 
@@ -429,9 +293,6 @@ class Program
 
         Console.Write("Photo: ");
         photo = Console.ReadLine();
-
-        Console.Write("Insurance Details: ");
-        insuranceDetails = Console.ReadLine();
     }
     // --------------------- Input Vehicle Details ---------------------
 
@@ -630,4 +491,117 @@ class Program
             Console.WriteLine("No renters found.");
         }
     }
+}
+    //joeyi's
+
+    // ------------------------ Register Car Flow ------------------------
+    static void RegisterCar() // sequence 1
+    {
+        bool success = false;
+        while (!success)
+        {
+            success = ShowCarDetailsPrompt();
+        }
+        Console.WriteLine("Car registered successfully.");
+    }
+
+    // ------------------------ Show Car Details Prompt ------------------------
+    static bool ShowCarDetailsPrompt() // sequence 1.1
+    {
+        string make, model, color, licensePlate, vin, photo;
+        int year, mileage;
+        InputCarDetails(out make, out model, out year, out mileage, out color, out licensePlate, out vin, out photo);
+        Car newCar = new Car(make, model, year, mileage, color, licensePlate, vin, photo);
+
+        return SubmitCarDetails(newCar);
+    }
+
+    // --------------------- Input Car Details ---------------------
+    static void InputCarDetails(out string make, out string model, out int year, out int mileage, out string color, out string licensePlate, out string vin, out string photo) // sequence 2
+    {
+        Console.WriteLine("\nEnter Car Details\n-----------------");
+
+        Console.Write("Make: ");
+        make = Console.ReadLine();
+
+        Console.Write("Model: ");
+        model = Console.ReadLine();
+
+        Console.Write("Year: ");
+        year = Convert.ToInt32(Console.ReadLine());
+
+        Console.Write("Mileage: ");
+        mileage = Convert.ToInt32(Console.ReadLine());
+
+        Console.Write("Color: ");
+        color = Console.ReadLine();
+
+        Console.Write("License Plate: ");
+        licensePlate = Console.ReadLine();
+
+        Console.Write("VIN: ");
+        vin = Console.ReadLine();
+
+        Console.Write("Photo: ");
+        photo = Console.ReadLine();
+    }
+
+    // --------------------- Submit Car Details ---------------------
+    static bool SubmitCarDetails(Car car) // sequence 2.1
+    {
+        bool validateResult = ValidateDetails(car.LicensePlate, car.VIN); // sequence 2.1.1
+
+        if (validateResult)
+        {
+            AddNewVehicle(car); // sequence 2.1.3
+            ShowValidateResults("success", car.LicensePlate, car.VIN); // sequence 2.1.4
+            return true;
+        }
+        else
+        {
+            ShowErrorMessage("\n***Error: Duplicate car license plate or VIN found.***"); // sequence 2.1.5
+            return false;
+        }
+    }
+    // --------------------- Validate Details ---------------------
+    static bool ValidateDetails(string licensePlate, string vin) // sequence 2.1.1 and 2.1.2
+    {
+        // Check for duplicate license plates or VINs
+        foreach (var existingCar in cars)
+        {
+            if (existingCar.LicensePlate == licensePlate || existingCar.VIN == vin)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // --------------------- Add New Vehicle ---------------------
+    static void AddNewVehicle(Car car) // sequence 2.1.3
+    {
+        cars.Add(car);
+        WriteCarDetailsToFile(car);
+    }
+    // --------------------- Show Validate Results ---------------------
+    static void ShowValidateResults(string result, string licensePlate, string vin) // sequence 2.1.4
+    {
+        Console.WriteLine($"Validation result: {result} for License Plate: {licensePlate} and VIN: {vin}");
+    }
+    // --------------------- Show Error Message ---------------------
+    static void ShowErrorMessage(string message) // sequence 2.1.5
+    {
+        Console.WriteLine(message);
+    }
+    // --------------------- Write Car Details To File ---------------------
+    static void WriteCarDetailsToFile(Car car)
+    {
+        using (StreamWriter sw = new StreamWriter("Car_Details.csv", true))
+        {
+            sw.WriteLine($"{car.Make},{car.Model},{car.Year},{car.Mileage},{car.Color},{car.LicensePlate},{car.VIN},{car.Photo}");
+        }
+    }
+
+    // end of joeyi's
 }

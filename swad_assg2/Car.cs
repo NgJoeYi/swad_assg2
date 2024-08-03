@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace swad_assg2
 {
-    class Car
+    public class Car
     {
         public string Make { get; set; }
         public string Model { get; set; }
@@ -16,6 +16,18 @@ namespace swad_assg2
         public string LicensePlate { get; set; }
         public string VIN { get; set; }
         public string Photo { get; set; }
-        public string InsuranceDetails { get; set; }
+
+        public Car(string make, string model, int year, int mileage, string color, string licensePlate, string vin, string photo)
+        {
+            Make = make;
+            Model = model;
+            Year = year;
+            Mileage = mileage;
+            Color = color;
+            LicensePlate = licensePlate;
+            VIN = vin;
+            Photo = photo;
+        }
     }
+
 }
