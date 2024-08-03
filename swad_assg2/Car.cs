@@ -16,6 +16,5 @@ namespace swad_assg2
         public string LicensePlate { get; set; }
         public string VIN { get; set; }
         public string Photo { get; set; }
-        public string InsuranceDetails { get; set; }
     }
 }
