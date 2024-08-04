@@ -572,6 +572,15 @@ class Program
             Console.WriteLine("No renters found.");
         }
     }
+
+
+
+
+
+
+
+
+
     //joeyi's
 
     // ------------------------ Register Car Flow ------------------------
@@ -679,11 +688,18 @@ class Program
     {
         using (StreamWriter sw = new StreamWriter("Car_Details.csv", true))
         {
-            sw.WriteLine($"{car.Make},{car.Model},{car.Year},{car.Mileage},{car.Color},{car.LicensePlate},{car.VIN},{car.Photo}");
+            sw.WriteLine($"{car.Make},{car.Model},{car.Year},{car.Mileage},{car.Color},{car.LicensePlate},{car.VIN},{car.Photos}");
         }
     }
 
     // end of joeyi's
+
+
+
+
+
+
+
 
 
     // start of ivan's
