@@ -10,6 +10,7 @@ class Program
     static List<ListRental> rentalDetailsList = new List<ListRental>();
     static List<Renter> renters = new List<Renter>();
     static List<InsuranceCoverage> insurances = new List<InsuranceCoverage>();
+    static List<Booking> bookings = new List<Booking>();
 
     static void Main(string[] args)
     {
@@ -43,6 +44,11 @@ class Program
         // Load existing insurance details 
         LoadInsuranceDetails();
 
+        LoadRentalDetails();
+
+        // Load existing booking details
+        LoadBookingDetails();
+
         // Main menu loop
         bool running = true;
         while (running)
@@ -63,7 +69,7 @@ class Program
                     registerAccount();
                     break;
                 case 5:
-                    Console.WriteLine("Reserve Car selected.");
+                    ReserveCar(); // sequence 1 in the sequence diagram for reserving a car
                     break;
                 case 6:
                     viewListedVehicles();
@@ -160,6 +166,76 @@ class Program
             }
         }
     }
+    static void LoadRentalDetails()
+    {
+        using (StreamReader sr = new StreamReader("Rental_Details.csv"))
+        {
+            string s = sr.ReadLine();
+            while ((s = sr.ReadLine()) != null)
+            {
+                string[] items = s.Split(',');
+                ListRental rental = new ListRental
+                {
+                    DailyRate = double.Parse(items[0]),
+                    AvailabilityStartDateTime = DateTime.Parse(items[1]),
+                    AvailabilityEndDateTime = DateTime.Parse(items[2]),
+                    PickupLocation = items[3],
+                    ReturnLocation = items[4],
+                    Insurance = bool.Parse(items[5])
+                };
+                rentalDetailsList.Add(rental);
+            }
+        }
+    }
+
+    static void LoadBookingDetails()
+    {
+        if (!File.Exists("Booking_Details.csv")) return;
+
+        using (StreamReader sr = new StreamReader("Booking_Details.csv"))
+        {
+            string s = sr.ReadLine();
+            while ((s = sr.ReadLine()) != null)
+            {
+                string[] items = s.Split(',');
+                Booking booking = new Booking(
+                    int.Parse(items[0]),
+                    DateTime.Parse(items[1]),
+                    DateTime.Parse(items[2]),
+                    float.Parse(items[3]),
+                    items[4],
+                    items[5],
+                    bool.Parse(items[6])
+                );
+                foreach (var car in cars)
+                {
+                    if (car.LicensePlate == items[7])
+                    {
+                        booking.Car = car;
+                        break;
+                    }
+                }
+
+                foreach (var renter in renters)
+                {
+                    if (renter.RenterId == items[8])
+                    {
+                        booking.Renter = renter;
+                        break;
+                    }
+                }
+                bookings.Add(booking);
+            }
+        }
+    }
+
+    static void WriteBookingDetailsToFile(Booking booking)
+    {
+        using (StreamWriter sw = new StreamWriter("Booking_Details.csv", true))
+        {
+            sw.WriteLine($"{booking.BookingId},{booking.StartDateTime},{booking.EndDateTime},{booking.TotalCost},{booking.PickUpLocation},{booking.ReturnLocation},{booking.BookingStatus},{booking.Car.LicensePlate},{booking.Renter.RenterId}");
+        }
+    }
 
     // ------------------------ List Vehicle Flow ------------------------
     static void listVehicle() // Sequence 1
@@ -230,8 +306,11 @@ class Program
         Console.Write("Daily Rate: ");
         double dailyRate = Convert.ToDouble(Console.ReadLine());
 
-        Console.Write("Availability Dates: ");
-        string availabilityDates = Console.ReadLine();
+        Console.Write("Availability Start Date and Time (yyyy-mm-dd hh:mm): ");
+        DateTime availabilityStartDateTime = DateTime.Parse(Console.ReadLine());
+
+        Console.Write("Availability End Date and Time (yyyy-mm-dd hh:mm): ");
+        DateTime availabilityEndDateTime = DateTime.Parse(Console.ReadLine());
 
         Console.Write("Pickup Location: ");
         string pickupLocation = Console.ReadLine();
@@ -245,7 +324,8 @@ class Program
         return new ListRental
         {
             DailyRate = dailyRate,
-            AvailabilityDates = availabilityDates,
+            AvailabilityStartDateTime = availabilityStartDateTime,
+            AvailabilityEndDateTime = availabilityEndDateTime,
             PickupLocation = pickupLocation,
             ReturnLocation = returnLocation,
             Insurance = insurance
@@ -256,7 +336,7 @@ class Program
     {
         using (StreamWriter sw = new StreamWriter("Rental_Details.csv", true))
         {
-            sw.WriteLine($"{rentalDetails.DailyRate},{rentalDetails.AvailabilityDates},{rentalDetails.PickupLocation},{rentalDetails.ReturnLocation},{rentalDetails.Insurance}");
+            sw.WriteLine($"{rentalDetails.DailyRate},{rentalDetails.AvailabilityStartDateTime},{rentalDetails.AvailabilityEndDateTime},{rentalDetails.PickupLocation},{rentalDetails.ReturnLocation},{rentalDetails.Insurance}");
         }
     }
 
@@ -319,7 +399,8 @@ class Program
 
             Console.WriteLine("\nRental Details:");
             Console.WriteLine($"Daily Rate: {rental.DailyRate}");
-            Console.WriteLine($"Availability Dates: {rental.AvailabilityDates}");
+            Console.WriteLine($"Availability Start DateTime: {rental.AvailabilityStartDateTime}");
+            Console.WriteLine($"Availability End DateTime: {rental.AvailabilityEndDateTime}");
             Console.WriteLine($"Pickup Location: {rental.PickupLocation}");
             Console.WriteLine($"Return Location: {rental.ReturnLocation}");
             Console.WriteLine($"Insurance: {rental.Insurance}");
@@ -491,7 +572,6 @@ class Program
             Console.WriteLine("No renters found.");
         }
     }
-}
     //joeyi's
 
     // ------------------------ Register Car Flow ------------------------
@@ -604,4 +684,113 @@ class Program
     }
 
     // end of joeyi's
+
+
+    // start of ivan's
+    // ------------------------ Reserve Car Flow ------------------------
+    static void ReserveCar()
+    {
+        Console.WriteLine("Navigate to Reserve Car page");
+
+        Console.Write("Enter Start Date and Time (yyyy-mm-dd hh:mm) or 0 to cancel: ");
+        string startInput = Console.ReadLine();
+        if (startInput == "0")
+        {
+            Console.WriteLine("Reservation process canceled.");
+            return;
+        }
+        DateTime startDateTime = DateTime.Parse(startInput);
+
+        Console.Write("Enter End Date and Time (yyyy-mm-dd hh:mm) or 0 to cancel: ");
+        string endInput = Console.ReadLine();
+        if (endInput == "0")
+        {
+            Console.WriteLine("Reservation process canceled.");
+            return;
+        }
+        DateTime endDateTime = DateTime.Parse(endInput);
+
+        var availableCars = new List<(Car car, ListRental rental)>();
+        foreach (var car in cars)
+        {
+            bool isAvailable = true;
+            foreach (var booking in bookings)
+            {
+                if (booking.Car.LicensePlate == car.LicensePlate &&
+                    !(endDateTime <= booking.StartDateTime || startDateTime >= booking.EndDateTime))
+                {
+                    isAvailable = false;
+                    break;
+                }
+            }
+
+            if (isAvailable)
+            {
+                foreach (var rental in rentalDetailsList)
+                {
+                    if (startDateTime >= rental.AvailabilityStartDateTime && endDateTime <= rental.AvailabilityEndDateTime)
+                    {
+                        availableCars.Add((car, rental));
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (availableCars.Count == 0)
+        {
+            Console.WriteLine("No Cars available for the specified period.");
+            return;
+        }
+
+        Console.WriteLine("Available Cars:");
+        for (int i = 0; i < availableCars.Count; i++)
+        {
+            var (car, rental) = availableCars[i];
+            Console.WriteLine($"{i + 1}. {car.Make} {car.Model}, Year: {car.Year}, License Plate: {car.LicensePlate}");
+            Console.WriteLine($"   Available from {rental.AvailabilityStartDateTime} to {rental.AvailabilityEndDateTime}");
+        }
+
+        Console.Write("Select Car by number or 0 to cancel: ");
+        int selectedCarIndex = int.Parse(Console.ReadLine()) - 1;
+        if (selectedCarIndex == -1)
+        {
+            Console.WriteLine("Reservation process canceled.");
+            return;
+        }
+        var selectedCar = availableCars[selectedCarIndex].car;
+
+        Console.Write("Enter Pick-Up Location or 0 to cancel: ");
+        string pickUpLocation = Console.ReadLine();
+        if (pickUpLocation == "0")
+        {
+            Console.WriteLine("Reservation process canceled.");
+            return;
+        }
+
+        Console.Write("Enter Return Location or 0 to cancel: ");
+        string returnLocation = Console.ReadLine();
+        if (returnLocation == "0")
+        {
+            Console.WriteLine("Reservation process canceled.");
+            return;
+        }
+
+        Booking newBooking = new Booking(bookings.Count + 1, startDateTime, endDateTime, 0, pickUpLocation, returnLocation, true)
+        {
+            Car = selectedCar,
+            Renter = renters.First() // assuming the first renter is making the booking, adjust as necessary
+        };
+
+        bookings.Add(newBooking);
+        WriteBookingDetailsToFile(newBooking);
+
+        Console.WriteLine("Reservation successful. Reservation details:");
+        Console.WriteLine($"Car: {selectedCar.Make} {selectedCar.Model}");
+        Console.WriteLine($"Pick-Up Location: {pickUpLocation}");
+        Console.WriteLine($"Return Location: {returnLocation}");
+        Console.WriteLine($"Start Date and Time: {startDateTime}");
+        Console.WriteLine($"End Date and Time: {endDateTime}");
+    }
+
 }

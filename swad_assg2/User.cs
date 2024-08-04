@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace swad_assg2
 {
-    class User
+    public class User
     {
         public string UserId { get; set; }
         public string FullName { get; set; }

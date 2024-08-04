@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace swad_assg2
 {
-    class Renter : User
+    public class Renter : User
     {
         public string RenterId { get; set; }
         public string BookingHistory { get; set; }
